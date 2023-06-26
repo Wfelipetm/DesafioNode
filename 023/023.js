@@ -5,11 +5,24 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-function leiaValorPositivo(mensagem) {
+function leiaValor(mensagem) {
   return new Promise((resolve) => {
     rl.question(mensagem, (valor) => {
-      resolve(parseFloat(valor));
+      resolve(valor);
     });
+  });
+}
+
+function leiaValorPositivo(mensagem) {
+  return new Promise(async (resolve) => {
+    let valor = await leiaValor(mensagem);
+    valor = parseFloat(valor);
+    while (isNaN(valor) || valor <= 0) {
+      console.log("Valor inválido. Tente novamente.");
+      valor = await leiaValor(mensagem);
+      valor = parseFloat(valor);
+    }
+    resolve(valor);
   });
 }
 
@@ -28,7 +41,7 @@ function calcularDescontoIR(salario_bruto) {
 async function calcularSalario() {
   console.log("--------------------------------------------");
 
-  const nome_funcionario = await leiaValorPositivo("Digite o nome do funcionario: ");
+  const nome_funcionario = await leiaValor("Digite o nome do funcionario: ");
   const dias_trabalhados = await leiaValorPositivo("Dias trabalhados: ");
   const dependente = await leiaValorPositivo("Quantos dependentes: ");
 
@@ -37,18 +50,15 @@ async function calcularSalario() {
   const desconto_ir = calcularDescontoIR(salario_bruto);
   const salario_liquido = salario_bruto - desconto_inss - desconto_ir;
 
+  console.log("-------------------------------------------");
+  console.log("Nome do funcionario: " + nome_funcionario);
+  console.log("Salário bruto: R$ " + salario_bruto.toFixed(2));
+  console.log("Desconto INSS: R$ " + desconto_inss.toFixed(2));
+  console.log("Desconto IR: R$ " + desconto_ir.toFixed(2));
+  console.log("Salário Liquido: R$ " + salario_liquido.toFixed(2));
+  console.log("-------------------------------------------");
 
-console.log("-------------------------------------------");
-console.log("Nome do funcionario: " + nome_funcionario);
-console.log("Salário bruto: R$ " + salario_bruto.toFixed(2));
-console.log("Desconto INSS: R$ " + desconto_inss.toFixed(2));
-console.log("Desconto IR: R$ " + desconto_ir.toFixed(2));
-console.log("Salário Liquido: R$ " + salario_liquido.toFixed(2));
-console.log("-------------------------------------------");
-
-
-rl.close();
+  rl.close();
 }
-
 
 calcularSalario();
